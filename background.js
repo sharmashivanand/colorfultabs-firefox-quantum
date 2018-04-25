@@ -3,22 +3,31 @@ var ColorfulTabs = {
         ColorfulTabs.initTheme();
 
         browser.runtime.onInstalled.addListener(function (details) {
+            
             if (details.reason == "install") {
+                let panel = browser.extension.getURL("/sidebar.html");
+                //console.log(panel)
+                browser.sidebarAction.setPanel({panel});
                 browser.tabs.create({
-                    url: "https://www.addongenie.com/fr/colorfultabs?vi=" + chrome.runtime.getManifest().version,
+                    url: "https://www.addongenie.com/fr/colorfultabs?vi=" + browser.runtime.getManifest().version,
                     active: true
                 });
+                
             }
             if (details.reason == "update") {
+                let panel = browser.extension.getURL("/sidebar.html");
+                browser.sidebarAction.setPanel({panel});
+                
                 browser.tabs.create({
                     url: "http://www.addongenie.com/fr/colorfultabs?vu=" + browser.runtime.getManifest().version,
                     active: true
                 });
+                
             }
         });
 
-        browser.tabs.onActivated.addListener(async(activeInfo) => {
-            await browser.tabs.get(activeInfo.tabId, async(tab) => {
+        browser.tabs.onActivated.addListener(async (activeInfo) => {
+            await browser.tabs.get(activeInfo.tabId, async (tab) => {
                 let host = new URL(tab.url);
                 host = host.hostname.toString();
                 let sat = await getOption("saturation");
@@ -29,11 +38,91 @@ var ColorfulTabs = {
             });
         });
 
-        browser.tabs.onUpdated.addListener(async(tabId, changeInfo, tab) => {
+        browser.runtime.onMessage.addListener(
+            function (request, sender, sendResponse) {
+                //console.log(request);
+                if (request.getoptions) {
+                    browser.runtime.sendMessage({
+                        settings: "these will be the options"
+                    });
+                }
+                if (request.initialized) {
+                    ColorfulTabs.sendTabs(request, sender, sendResponse);
+                }
+                if (request.newtab) {
+                    browser.tabs.create({
+                        active: true
+                    });
+                }
+                if (request.select) {
+                    ColorfulTabs.sendTabs(request, sender, sendResponse);
+                }
+                if (request.scroll) {
+                    browser.tabs.query({
+                        currentWindow: true
+                    }, function (tabs) {
+                        tabs = tabs.filter(tab => tab.id != sender.tab.id);
+                        for (var i = 0; i < tabs.length; ++i) {
+                            //browser.runtime.sendMessage(tabs[i].id, {scroll:request.scroll,tabscrolled:sender.tab.id});
+                        }
+                    });
+                }
+                if (request.close) {
+                    ColorfulTabs.sendTabs(request, sender, sendResponse);
+                }
+            }
+        );
+        browser.tabs.onCreated.addListener(ColorfulTabs.setBadge);
+        browser.tabs.onAttached.addListener(ColorfulTabs.setBadge);
+        browser.tabs.onDetached.addListener(ColorfulTabs.setBadge);
+        browser.tabs.onRemoved.addListener(ColorfulTabs.setBadge);
+
+        browser.tabs.onActivated.addListener(
+            ColorfulTabs.sendTabs
+        );
+        
+        browser.tabs.onAttached.addListener(
+
+            ColorfulTabs.sendTabs
+        );
+        browser.tabs.onCreated.addListener(
+
+            ColorfulTabs.sendTabs
+        );
+        browser.tabs.onDetached.addListener(
+
+            ColorfulTabs.sendTabs
+        );
+        
+        browser.tabs.onHighlighted.addListener(
+
+            ColorfulTabs.sendTabs
+        );
+        browser.tabs.onMoved.addListener(
+
+            ColorfulTabs.sendTabs
+        );
+        browser.tabs.onRemoved.addListener(
+
+            ColorfulTabs.sendTabs
+        );
+        browser.tabs.onReplaced.addListener(
+
+            ColorfulTabs.sendTabs
+        );
+        browser.tabs.onUpdated.addListener(
+
+            ColorfulTabs.sendTabs
+        );
+
+        //browser.tabs.onSelectionChanged.addListener();
+        //browser.tabs.onUpdated.addListener(ColorfulTabs.sendTabs);
+
+        browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
             if (changeInfo.status != "complete") {
                 return;
             }
-            await browser.tabs.get(tabId, async(tab) => {
+            await browser.tabs.get(tabId, async (tab) => {
                 let host = new URL(tab.url);
                 host = host.hostname.toString();
                 let sat = await getOption("saturation");
@@ -44,7 +133,43 @@ var ColorfulTabs = {
             });
         });
     },
+    activateTab(activeInfo) {
+        browser.runtime.sendMessage({
+            activate: activeInfo.tabId
+        });
+    },
+    sendTabs(request, sender, sendResponse) {
+        
 
+        if (request.select) {
+            //console.log('select' + request.select);
+            browser.tabs.update(parseInt(request.select), {
+                active: true
+            });
+        }
+        if (request.close) {
+            browser.tabs.remove(parseInt(request.close), function () {});
+        }
+        browser.tabs.query({
+            currentWindow: true
+        }, function (tabs) {
+            tabs = tabs.filter(tab => tab.id != request.close);
+            for (var i = 0; i < tabs.length; ++i) {
+                browser.runtime.sendMessage({
+                    tabs: tabs
+                });
+            }
+        });
+    },
+    setBadge() {
+        browser.windows.getCurrent({
+            populate: true
+        }, function (window) {
+            browser.browserAction.setBadgeText({
+                text: window.tabs.length.toString()
+            });
+        });
+    },
     async initTheme() {
 
         let headerColor = await getOption("accentcolor");
@@ -83,7 +208,7 @@ var ColorfulTabs = {
         var myImage = ctCanvas.toDataURL("image/png");
         return myImage;
     },
-    
+
     clrtheme: {
         "images": {
             "headerURL": ""
