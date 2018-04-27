@@ -50,7 +50,7 @@ function render_tabs(message, sender) {
     tabstrip.id = 'tabstrip';
     tabstrip.className = 'tabstrip';
     tabbar.appendChild(tabstrip);
-
+    
     for (var i = 0; i < message.length; ++i) {
         let tab = document.createElement('span');
         tab.className = 'tab';
@@ -90,10 +90,10 @@ function render_tabs(message, sender) {
             while (element.className != 'tab') {
                 element = element.parentElement;
             }
+            
             //console.log(parseInt(element.getAttribute('id')));
             browser.runtime.sendMessage({
-                select: parseInt(element.getAttribute('id')),
-                scroll: tabstrip.scrollLeft
+                select: {tabId :parseInt(element.getAttribute('id'))}
             });
         });
         let tabicon = document.createElement('span');
@@ -119,7 +119,7 @@ function render_tabs(message, sender) {
             event.preventDefault();
             let tabclose = this.getAttribute('data-close-id');
             browser.runtime.sendMessage({
-                close: tabclose
+                close: { tabId : parseInt(tabclose) }
             }, function (response) {});
         })
     }

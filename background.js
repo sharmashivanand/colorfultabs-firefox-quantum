@@ -4,26 +4,26 @@ var ColorfulTabs = {
 
         browser.runtime.onInstalled.addListener(function (details) {
             
+           
             if (details.reason == "install") {
-                let panel = browser.extension.getURL("/sidebar.html");
-                //console.log(panel)
-                browser.sidebarAction.setPanel({panel});
                 browser.tabs.create({
                     url: "https://www.addongenie.com/fr/colorfultabs?vi=" + browser.runtime.getManifest().version,
                     active: true
                 });
-                
+
             }
             if (details.reason == "update") {
-                let panel = browser.extension.getURL("/sidebar.html");
-                browser.sidebarAction.setPanel({panel});
-                
                 browser.tabs.create({
                     url: "http://www.addongenie.com/fr/colorfultabs?vu=" + browser.runtime.getManifest().version,
                     active: true
                 });
-                
+
             }
+
+            let panel = browser.extension.getURL("/sidebar.html");
+            browser.sidebarAction.setPanel({
+                panel
+            });
         });
 
         browser.tabs.onActivated.addListener(async (activeInfo) => {
@@ -40,36 +40,38 @@ var ColorfulTabs = {
 
         browser.runtime.onMessage.addListener(
             function (request, sender, sendResponse) {
-                //console.log(request);
-                if (request.getoptions) {
+
+
+                if (request.initialized) {
+                    ColorfulTabs.sendTabs(request, sender, sendResponse);
+                }
+
+                if (request.select) {
+                    //console.log(JSON.stringify(request.select))
+                    //console.log(request.select.tabId)
+                    // let select = {tabId: request.select};
+                    //console.log(request)
+                    ColorfulTabs.onActivated( request.select);
+                    //ColorfulTabs.sendTabs(request, sender, sendResponse);
+                }
+                if (request.close) {
+                    console.log(request)
+                    //ColorfulTabs.onRemoved(request.close, "");
+                    ColorfulTabs.onRemoved(request.close.tabId, request.close);
+                    //ColorfulTabs.sendTabs(request, sender, sendResponse);
+                }
+                /*
+                 if (request.getoptions) {
                     browser.runtime.sendMessage({
                         settings: "these will be the options"
                     });
-                }
-                if (request.initialized) {
-                    ColorfulTabs.sendTabs(request, sender, sendResponse);
                 }
                 if (request.newtab) {
                     browser.tabs.create({
                         active: true
                     });
                 }
-                if (request.select) {
-                    ColorfulTabs.sendTabs(request, sender, sendResponse);
-                }
-                if (request.scroll) {
-                    browser.tabs.query({
-                        currentWindow: true
-                    }, function (tabs) {
-                        tabs = tabs.filter(tab => tab.id != sender.tab.id);
-                        for (var i = 0; i < tabs.length; ++i) {
-                            //browser.runtime.sendMessage(tabs[i].id, {scroll:request.scroll,tabscrolled:sender.tab.id});
-                        }
-                    });
-                }
-                if (request.close) {
-                    ColorfulTabs.sendTabs(request, sender, sendResponse);
-                }
+                */
             }
         );
         browser.tabs.onCreated.addListener(ColorfulTabs.setBadge);
@@ -77,46 +79,6 @@ var ColorfulTabs = {
         browser.tabs.onDetached.addListener(ColorfulTabs.setBadge);
         browser.tabs.onRemoved.addListener(ColorfulTabs.setBadge);
 
-        browser.tabs.onActivated.addListener(
-            ColorfulTabs.sendTabs
-        );
-        
-        browser.tabs.onAttached.addListener(
-
-            ColorfulTabs.sendTabs
-        );
-        browser.tabs.onCreated.addListener(
-
-            ColorfulTabs.sendTabs
-        );
-        browser.tabs.onDetached.addListener(
-
-            ColorfulTabs.sendTabs
-        );
-        
-        browser.tabs.onHighlighted.addListener(
-
-            ColorfulTabs.sendTabs
-        );
-        browser.tabs.onMoved.addListener(
-
-            ColorfulTabs.sendTabs
-        );
-        browser.tabs.onRemoved.addListener(
-
-            ColorfulTabs.sendTabs
-        );
-        browser.tabs.onReplaced.addListener(
-
-            ColorfulTabs.sendTabs
-        );
-        browser.tabs.onUpdated.addListener(
-
-            ColorfulTabs.sendTabs
-        );
-
-        //browser.tabs.onSelectionChanged.addListener();
-        //browser.tabs.onUpdated.addListener(ColorfulTabs.sendTabs);
 
         browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
             if (changeInfo.status != "complete") {
@@ -132,33 +94,151 @@ var ColorfulTabs = {
                 await ColorfulTabs.updateTheme(tab.windowId, ColorfulTabs.clrtheme);
             });
         });
-    },
-    activateTab(activeInfo) {
-        browser.runtime.sendMessage({
-            activate: activeInfo.tabId
-        });
-    },
-    sendTabs(request, sender, sendResponse) {
-        
 
-        if (request.select) {
-            //console.log('select' + request.select);
-            browser.tabs.update(parseInt(request.select), {
-                active: true
-            });
-        }
-        if (request.close) {
-            browser.tabs.remove(parseInt(request.close), function () {});
-        }
+        browser.tabs.onActivated.addListener(ColorfulTabs.onActivated);
+        browser.tabs.onAttached.addListener(ColorfulTabs.onAttached);
+        browser.tabs.onCreated.addListener(ColorfulTabs.onCreated);
+        browser.tabs.onDetached.addListener(ColorfulTabs.onDetached);
+        browser.tabs.onHighlighted.addListener(ColorfulTabs.onHighlighted);
+        browser.tabs.onMoved.addListener(ColorfulTabs.onMoved);
+        browser.tabs.onRemoved.addListener(ColorfulTabs.onRemoved);
+        browser.tabs.onReplaced.addListener(ColorfulTabs.onReplaced);
+        browser.tabs.onUpdated.addListener(ColorfulTabs.onUpdated);
+
+        //browser.tabs.onSelectionChanged.addListener();
+        //browser.tabs.onUpdated.addListener(ColorfulTabs.sendTabs);
+
+
+    },
+    onActivated(activeInfo) {
+        //console.log(activeInfo);
+        console.log("activeInfo~~:" + JSON.stringify(activeInfo))
+        browser.tabs.update(parseInt(activeInfo.tabId), {
+            active: true
+            //selected: true
+        });
+
         browser.tabs.query({
             currentWindow: true
         }, function (tabs) {
-            tabs = tabs.filter(tab => tab.id != request.close);
+
+            browser.runtime.sendMessage({
+                tabs: tabs
+            });
+        });
+    },
+    onAttached(tabID, attachInfo) {
+        console.log("tabID, attachInfo~~:" + tabID + "~~" + JSON.stringify(attachInfo))
+        browser.tabs.query({
+            currentWindow: true
+        }, function (tabs) {
+            browser.runtime.sendMessage({
+                tabs: tabs
+            });
+        });
+    },
+    onCreated(tab) {
+        console.log("tab~~:" + JSON.stringify(tab))
+        browser.tabs.query({
+            currentWindow: true
+        }, function (tabs) {
+            browser.runtime.sendMessage({
+                tabs: tabs
+            });
+        });
+    },
+    onDetached(tabId, detachInfo) {
+        console.log("tabID, detachInfo~~:" + tabID + "~~" + JSON.stringify(detachInfo));
+        browser.tabs.query({
+            currentWindow: true
+        }, function (tabs) {
+            browser.runtime.sendMessage({
+                tabs: tabs
+            });
+        });
+    },
+    onHighlighted(highlightInfo) {
+        console.log("highlightInfo~~:" + JSON.stringify(highlightInfo));
+        browser.tabs.query({
+            currentWindow: true
+        }, function (tabs) {
+            browser.runtime.sendMessage({
+                tabs: tabs
+            });
+        });
+    },
+    onMoved(tabId, moveInfo) {
+        console.log("tabID, moveInfo~~:" + tabID + "~~" + JSON.stringify(moveInfo))
+        browser.tabs.query({
+            currentWindow: true
+        }, function (tabs) {
+            browser.runtime.sendMessage({
+                tabs: tabs
+            });
+        });
+    },
+    onRemoved(tabId, removeInfo) {
+        console.log("tabId, removeInfo~~:" + tabId + "~~" + JSON.stringify(removeInfo))
+        //browser.tabs.query({currentWindow: true}, function (tabs) {browser.runtime.sendMessage({tabs: tabs});});
+        browser.tabs.remove(tabId, function () {
+            browser.tabs.query({
+                currentWindow: true
+            }, function (tabs) {
+                tabs = tabs.filter(tab => tab.id != tabId);
+                browser.runtime.sendMessage({
+                    tabs: tabs
+                });
+            })
+        });
+
+
+    },
+    onReplaced(addedTabId, removedTabId) {
+        console.log("addedTabId, removeInfo~~:" + addedTabId + "~~" + JSON.stringify(removedTabId))
+        browser.tabs.query({
+            currentWindow: true
+        }, function (tabs) {
+            browser.runtime.sendMessage({
+                tabs: tabs
+            });
+        });
+    },
+    onUpdated(tabId, changeInfo, tabInfo) {
+        console.log("tabId, changeInfo, tabInfo~~:" + tabId + "~~" + JSON.stringify(changeInfo) + "~~" + JSON.stringify(tabInfo))
+        browser.tabs.query({
+            currentWindow: true
+        }, function (tabs) {
+            browser.runtime.sendMessage({
+                tabs: tabs
+            });
+        });
+    },
+    sendTabs(info) {
+        //return;
+        /*
+                if (request.select) {
+                    //console.log('select' + request.select);
+                    browser.tabs.update(parseInt(request.select), {
+                        active: true
+                    });
+                }
+                if (request.close) {
+                    browser.tabs.remove(parseInt(request.close), function () { });
+                }
+                */
+        browser.tabs.query({
+            currentWindow: true
+        }, function (tabs) {
+            browser.runtime.sendMessage({
+                tabs: tabs
+            });
+            /*tabs = tabs.filter(tab => tab.id != request.close);
             for (var i = 0; i < tabs.length; ++i) {
                 browser.runtime.sendMessage({
                     tabs: tabs
                 });
             }
+            */
         });
     },
     setBadge() {
