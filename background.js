@@ -3,8 +3,8 @@ var ColorfulTabs = {
         ColorfulTabs.initTheme();
 
         browser.runtime.onInstalled.addListener(function (details) {
-            
-           
+
+
             if (details.reason == "install") {
                 browser.tabs.create({
                     url: "https://www.addongenie.com/fr/colorfultabs?vi=" + browser.runtime.getManifest().version,
@@ -20,10 +20,14 @@ var ColorfulTabs = {
 
             }
 
-            let panel = browser.extension.getURL("/sidebar.html");
-            browser.sidebarAction.setPanel({
-                panel
-            });
+            try {
+                let ctpanel = browser.extension.getURL("/sidebar.html");
+                browser.sidebarAction.setPanel({
+                    panel: ctpanel
+                });
+            } catch (err) {
+                console.log(err);
+            }
         });
 
         browser.tabs.onActivated.addListener(async (activeInfo) => {
@@ -51,7 +55,7 @@ var ColorfulTabs = {
                     //console.log(request.select.tabId)
                     // let select = {tabId: request.select};
                     //console.log(request)
-                    ColorfulTabs.onActivated( request.select);
+                    ColorfulTabs.onActivated(request.select);
                     //ColorfulTabs.sendTabs(request, sender, sendResponse);
                 }
                 if (request.close) {
