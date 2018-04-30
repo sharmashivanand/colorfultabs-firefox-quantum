@@ -39,7 +39,6 @@
         "gecko": {
             "strict_min_version": "57.0",
             "id": "{0545b830-f0aa-4d7e-8820-50a4629a56fe}",
-            "update_url": "https://dev.converticacommerce.com/_uploads/updates.json"
         }
     },
     "permissions": [
