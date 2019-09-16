@@ -1,7 +1,8 @@
 'use strict';
 
 var ColorfulTabs = {
-    init() {
+    async init() {
+
         ColorfulTabs.initTheme();
 
         browser.runtime.onInstalled.addListener(function (details) {
@@ -36,7 +37,7 @@ var ColorfulTabs = {
                 let sat = await getOption("saturation");
                 let lum = await getOption("lightness");
                 let tabClr = 'hsl(' + Math.abs(ColorfulTabs.clrHash(host)) % 360 + ',' + sat + '%,' + lum + '%)';
-                ColorfulTabs.clrtheme.colors.toolbar = tabClr;
+                ColorfulTabs.clrtheme.theme.colors.toolbar = tabClr;
                 await ColorfulTabs.updateTheme(tab.windowId, ColorfulTabs.clrtheme);
             });
         });
@@ -96,17 +97,16 @@ var ColorfulTabs = {
     },
 
     onActivated(activeInfo) {
-        
+
         var updating;
         updating = browser.tabs.update(parseInt(activeInfo.tabId), {
             active: true
         });
 
         updating.then(function (error) {
-            console.dir(error);
-        }, function (tab) {
-        });
-        
+            //console.dir(error);
+        }, function (tab) {});
+
 
         browser.tabs.query({
             currentWindow: true
@@ -219,23 +219,34 @@ var ColorfulTabs = {
             });
         });
     },
-    
+
     async initTheme() {
+
+        var overridetheme = await getOption("overridetheme");
+        //console.log('where does this show?');
+        console.log(overridetheme);
+        if (overridetheme == 'yes') {
+
+        }
 
         let headerColor = await getOption("accentcolor");
         headerColor = await ColorfulTabs.rgbclr(headerColor);
         let headerImage = ColorfulTabs.generateImage(headerColor);
 
-        ColorfulTabs.clrtheme.images.headerURL = headerImage;
+        //ColorfulTabs.clrtheme.images.headerURL = headerImage;
+        ColorfulTabs.clrtheme.theme.images.theme_frame = headerImage;
 
         let accentcolor = await ColorfulTabs.rgbclr(await getOption("accentcolor"));
-        ColorfulTabs.clrtheme.colors.accentcolor = "rgb(" + accentcolor + ")";
+        //ColorfulTabs.clrtheme.colors.accentcolor = "rgb(" + accentcolor + ")";
+        ColorfulTabs.clrtheme.theme.colors.frame = "rgb(" + accentcolor + ")";
 
         let textcolor = await ColorfulTabs.rgbclr(await getOption("textcolor"));
-        ColorfulTabs.clrtheme.colors.textcolor = "rgb(" + textcolor + ")";
+        //ColorfulTabs.clrtheme.colors.textcolor = "rgb(" + textcolor + ")";
+        ColorfulTabs.clrtheme.theme.colors.tab_background_text = "rgb(" + textcolor + ")";
 
         let toolbar_text = await ColorfulTabs.rgbclr(await getOption("toolbar_text"));
-        ColorfulTabs.clrtheme.colors.toolbar_text = "rgb(" + toolbar_text + ")";
+        //ColorfulTabs.clrtheme.colors.toolbar_text = "rgb(" + toolbar_text + ")";
+        ColorfulTabs.clrtheme.theme.colors.bookmark_text = "rgb(" + toolbar_text + ")";
 
         let toolbar_field = await ColorfulTabs.rgbclr(await getOption("toolbar_field"));
         ColorfulTabs.clrtheme.colors.toolbar_field = "rgb(" + toolbar_field + ")";
@@ -259,17 +270,18 @@ var ColorfulTabs = {
     },
 
     clrtheme: {
-        "images": {
-            "headerURL": ""
-        },
-        "colors": {
-            "accentcolor": "#fff",
-            "textcolor": "#000",
-            "toolbar": "rgba(255,0,0, 1)",
-            "toolbar_text": "#000",
-            "toolbar_field": "#000",
-            "toolbar_field_text": "#000",
-
+        "theme": {
+            "colors": {
+                "frame": "#fff",
+                "tab_background_text": "#000",
+                "toolbar": "rgba(255,0,0, 1)",
+                "bookmark_text": "#000",
+                "toolbar_field": "#000",
+                "toolbar_field_text": "#000",
+            },
+            "images": {
+                "theme_frame": ""
+            }
         }
     },
 
@@ -283,7 +295,12 @@ var ColorfulTabs = {
     },
 
     async updateTheme(windowId, updatedTheme) {
-        await browser.theme.update(windowId, updatedTheme);
+        var overridetheme = await getOption("overridetheme");
+        console.log(overridetheme);
+        if (overridetheme == 'yes') {
+            //ColorfulTabs.initTheme();
+            await browser.theme.update(windowId, updatedTheme);
+        }
     },
 
     get_hsl(r, g, b) {

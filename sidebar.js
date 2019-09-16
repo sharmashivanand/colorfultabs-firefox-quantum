@@ -1,6 +1,6 @@
 'use strict';
 window.addEventListener('DOMContentLoaded', async function () {
-    
+
     browser.runtime.sendMessage({
         initialized: "pls send all tabs"
     }, function (response) {});
@@ -8,7 +8,7 @@ window.addEventListener('DOMContentLoaded', async function () {
 });
 
 
-document.oncontextmenu = function(){
+document.oncontextmenu = function () {
     return false;
 };
 
@@ -37,8 +37,8 @@ function render_tabs(message, sender) {
         });
     });
     tabbar.appendChild(newtabbtn);
-    console.log(tabbar);
-    
+    //console.log(tabbar);
+
     let tabstrippinned = document.createElement('span');
     tabstrippinned.id = 'tabstrippinned';
     tabstrippinned.className = 'tabstrippinned';
@@ -60,7 +60,7 @@ function render_tabs(message, sender) {
         tab.setAttribute("data-ct-color", `hsl(${hue},${sat}%,${lum}%);`);
         var gradientstyle = `linear-gradient(to right, hsla(0,0%,100%,.7),hsla(${hue},${sat}%,${lum}%,.5),hsla(${hue},${sat}%,${lum}%,1)),linear-gradient(to left, hsla(${hue},${sat}%,${lum}%,1),hsla(${hue},${sat}%,${lum}%,1))`;
         tab.style = "background-image:" + gradientstyle;
-        
+
         tab.setAttribute('active', message[i].active);
         let attribs = Object.keys(message[i]);
         tab.title = message[i].title;
@@ -84,9 +84,11 @@ function render_tabs(message, sender) {
             while (element.className != 'tab') {
                 element = element.parentElement;
             }
-            
+
             browser.runtime.sendMessage({
-                select: {tabId :parseInt(element.getAttribute('id'))}
+                select: {
+                    tabId: parseInt(element.getAttribute('id'))
+                }
             });
         });
         let tabicon = document.createElement('span');
@@ -112,7 +114,9 @@ function render_tabs(message, sender) {
             event.preventDefault();
             let tabclose = this.getAttribute('data-close-id');
             browser.runtime.sendMessage({
-                close: { tabId : parseInt(tabclose) }
+                close: {
+                    tabId: parseInt(tabclose)
+                }
             }, function (response) {});
         })
     }
