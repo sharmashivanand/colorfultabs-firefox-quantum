@@ -1,3 +1,5 @@
+'use strict';
+
 // This is called when the extension button is clicked.
 
 var ColorfulTabsPopup = {
@@ -16,11 +18,34 @@ var ColorfulTabsPopup = {
 
         });
 
+        document.addEventListener('contextmenu', function (ev) {
+            ev.preventDefault();
+            return false;
+        }, false);
+
         // Build pseudo tabs
         document.addEventListener('DOMContentLoaded', function () {
             var ctabs = '';
             var cttabs = document.createElement('ul');
             cttabs.id = "ct-tabs";
+
+            var sidebartoggle = document.getElementById("sidebartoggle");
+
+            sidebartoggle.addEventListener("click", function () {
+
+                try {
+                    let ctpanel = browser.extension.getURL("/sidebar.html");
+
+                    browser.sidebarAction.open().then(setSB => {
+                        browser.sidebarAction.setPanel({
+                            panel: ctpanel
+                        });
+                    });
+
+                } catch (err) {
+                    console.log(err);
+                }
+            });
 
             var contribute = document.getElementById("contribute");
             contribute.addEventListener("click", function () {
@@ -46,31 +71,31 @@ var ColorfulTabsPopup = {
                 });
             });
 
-			var settings = document.getElementById("settings");
+            var settings = document.getElementById("settings");
             settings.addEventListener("click", function () {
                 browser.runtime.openOptionsPage();
             });
-			
+
             chrome.windows.getCurrent({
                 populate: true
             }, function (window) {
 
                 window.tabs.forEach(element => {
-                    
+
                     var domain = new URL(element.url).hostname;
                     var hue = ColorfulTabsPopup.genColor(domain);
 
-                    ct_tab = document.createElement('li');
+                    var ct_tab = document.createElement('li');
 
-                    ct_tab_close = document.createElement('span');
+                    var ct_tab_close = document.createElement('span');
                     ct_tab_close.className = "ct-tab-close";
 
                     ct_tab_close.data_closetabid = element.id;
 
-                    ct_tab_label = document.createElement('span');
+                    var ct_tab_label = document.createElement('span');
                     ct_tab_label.className = "ct-tab-label";
 
-                    attribs = Object.keys(element);
+                    var attribs = Object.keys(element);
                     for (var i = 0; i < attribs.length; i++) {
 
                         if (element.hasOwnProperty(attribs[i])) {

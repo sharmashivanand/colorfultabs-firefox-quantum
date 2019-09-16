@@ -1,29 +1,28 @@
+'use strict';
+
 var ColorfulTabs = {
     init() {
         ColorfulTabs.initTheme();
 
         browser.runtime.onInstalled.addListener(function (details) {
-
-
             if (details.reason == "install") {
                 browser.tabs.create({
                     url: "https://www.addongenie.com/fr/colorfultabs?vi=" + browser.runtime.getManifest().version,
                     active: true
                 });
-
             }
             if (details.reason == "update") {
                 browser.tabs.create({
                     url: "http://www.addongenie.com/fr/colorfultabs?vu=" + browser.runtime.getManifest().version,
                     active: true
                 });
-
             }
-
             try {
                 let ctpanel = browser.extension.getURL("/sidebar.html");
-                browser.sidebarAction.setPanel({
-                    panel: ctpanel
+                browser.sidebarAction.open().then(setSB => {
+                    browser.sidebarAction.setPanel({
+                        panel: ctpanel
+                    });
                 });
             } catch (err) {
                 console.log(err);
@@ -36,7 +35,7 @@ var ColorfulTabs = {
                 host = host.hostname.toString();
                 let sat = await getOption("saturation");
                 let lum = await getOption("lightness");
-                tabClr = 'hsl(' + Math.abs(ColorfulTabs.clrHash(host)) % 360 + ',' + sat + '%,' + lum + '%)';
+                let tabClr = 'hsl(' + Math.abs(ColorfulTabs.clrHash(host)) % 360 + ',' + sat + '%,' + lum + '%)';
                 ColorfulTabs.clrtheme.colors.toolbar = tabClr;
                 await ColorfulTabs.updateTheme(tab.windowId, ColorfulTabs.clrtheme);
             });
@@ -45,44 +44,30 @@ var ColorfulTabs = {
         browser.runtime.onMessage.addListener(
             function (request, sender, sendResponse) {
 
-
                 if (request.initialized) {
                     ColorfulTabs.sendTabs(request, sender, sendResponse);
                 }
 
                 if (request.select) {
-                    //console.log(JSON.stringify(request.select))
-                    //console.log(request.select.tabId)
-                    // let select = {tabId: request.select};
-                    //console.log(request)
                     ColorfulTabs.onActivated(request.select);
-                    //ColorfulTabs.sendTabs(request, sender, sendResponse);
                 }
                 if (request.close) {
-                    console.log(request)
-                    //ColorfulTabs.onRemoved(request.close, "");
                     ColorfulTabs.onRemoved(request.close.tabId, request.close);
-                    //ColorfulTabs.sendTabs(request, sender, sendResponse);
                 }
-                /*
-                 if (request.getoptions) {
-                    browser.runtime.sendMessage({
-                        settings: "these will be the options"
-                    });
-                }
+
                 if (request.newtab) {
                     browser.tabs.create({
                         active: true
                     });
                 }
-                */
+
             }
         );
+
         browser.tabs.onCreated.addListener(ColorfulTabs.setBadge);
         browser.tabs.onAttached.addListener(ColorfulTabs.setBadge);
         browser.tabs.onDetached.addListener(ColorfulTabs.setBadge);
         browser.tabs.onRemoved.addListener(ColorfulTabs.setBadge);
-
 
         browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
             if (changeInfo.status != "complete") {
@@ -93,7 +78,7 @@ var ColorfulTabs = {
                 host = host.hostname.toString();
                 let sat = await getOption("saturation");
                 let lum = await getOption("lightness");
-                tabClr = 'hsl(' + Math.abs(ColorfulTabs.clrHash(host)) % 360 + ',' + sat + '%,' + lum + '%)';
+                let tabClr = 'hsl(' + Math.abs(ColorfulTabs.clrHash(host)) % 360 + ',' + sat + '%,' + lum + '%)';
                 ColorfulTabs.clrtheme.colors.toolbar = tabClr;
                 await ColorfulTabs.updateTheme(tab.windowId, ColorfulTabs.clrtheme);
             });
@@ -108,31 +93,31 @@ var ColorfulTabs = {
         browser.tabs.onRemoved.addListener(ColorfulTabs.onRemoved);
         browser.tabs.onReplaced.addListener(ColorfulTabs.onReplaced);
         browser.tabs.onUpdated.addListener(ColorfulTabs.onUpdated);
-
-        //browser.tabs.onSelectionChanged.addListener();
-        //browser.tabs.onUpdated.addListener(ColorfulTabs.sendTabs);
-
-
     },
+
     onActivated(activeInfo) {
-        //console.log(activeInfo);
-        console.log("activeInfo~~:" + JSON.stringify(activeInfo))
-        browser.tabs.update(parseInt(activeInfo.tabId), {
+        
+        var updating;
+        updating = browser.tabs.update(parseInt(activeInfo.tabId), {
             active: true
-            //selected: true
         });
+
+        updating.then(function (error) {
+            console.dir(error);
+        }, function (tab) {
+        });
+        
 
         browser.tabs.query({
             currentWindow: true
         }, function (tabs) {
-
             browser.runtime.sendMessage({
                 tabs: tabs
             });
         });
     },
+
     onAttached(tabID, attachInfo) {
-        console.log("tabID, attachInfo~~:" + tabID + "~~" + JSON.stringify(attachInfo))
         browser.tabs.query({
             currentWindow: true
         }, function (tabs) {
@@ -141,8 +126,8 @@ var ColorfulTabs = {
             });
         });
     },
+
     onCreated(tab) {
-        console.log("tab~~:" + JSON.stringify(tab))
         browser.tabs.query({
             currentWindow: true
         }, function (tabs) {
@@ -151,8 +136,8 @@ var ColorfulTabs = {
             });
         });
     },
+
     onDetached(tabId, detachInfo) {
-        console.log("tabID, detachInfo~~:" + tabID + "~~" + JSON.stringify(detachInfo));
         browser.tabs.query({
             currentWindow: true
         }, function (tabs) {
@@ -161,8 +146,8 @@ var ColorfulTabs = {
             });
         });
     },
+
     onHighlighted(highlightInfo) {
-        console.log("highlightInfo~~:" + JSON.stringify(highlightInfo));
         browser.tabs.query({
             currentWindow: true
         }, function (tabs) {
@@ -171,8 +156,8 @@ var ColorfulTabs = {
             });
         });
     },
+
     onMoved(tabId, moveInfo) {
-        console.log("tabID, moveInfo~~:" + tabID + "~~" + JSON.stringify(moveInfo))
         browser.tabs.query({
             currentWindow: true
         }, function (tabs) {
@@ -181,9 +166,8 @@ var ColorfulTabs = {
             });
         });
     },
+
     onRemoved(tabId, removeInfo) {
-        console.log("tabId, removeInfo~~:" + tabId + "~~" + JSON.stringify(removeInfo))
-        //browser.tabs.query({currentWindow: true}, function (tabs) {browser.runtime.sendMessage({tabs: tabs});});
         browser.tabs.remove(tabId, function () {
             browser.tabs.query({
                 currentWindow: true
@@ -194,11 +178,9 @@ var ColorfulTabs = {
                 });
             })
         });
-
-
     },
+
     onReplaced(addedTabId, removedTabId) {
-        console.log("addedTabId, removeInfo~~:" + addedTabId + "~~" + JSON.stringify(removedTabId))
         browser.tabs.query({
             currentWindow: true
         }, function (tabs) {
@@ -207,8 +189,8 @@ var ColorfulTabs = {
             });
         });
     },
+
     onUpdated(tabId, changeInfo, tabInfo) {
-        console.log("tabId, changeInfo, tabInfo~~:" + tabId + "~~" + JSON.stringify(changeInfo) + "~~" + JSON.stringify(tabInfo))
         browser.tabs.query({
             currentWindow: true
         }, function (tabs) {
@@ -217,34 +199,17 @@ var ColorfulTabs = {
             });
         });
     },
+
     sendTabs(info) {
-        //return;
-        /*
-                if (request.select) {
-                    //console.log('select' + request.select);
-                    browser.tabs.update(parseInt(request.select), {
-                        active: true
-                    });
-                }
-                if (request.close) {
-                    browser.tabs.remove(parseInt(request.close), function () { });
-                }
-                */
         browser.tabs.query({
             currentWindow: true
         }, function (tabs) {
             browser.runtime.sendMessage({
                 tabs: tabs
             });
-            /*tabs = tabs.filter(tab => tab.id != request.close);
-            for (var i = 0; i < tabs.length; ++i) {
-                browser.runtime.sendMessage({
-                    tabs: tabs
-                });
-            }
-            */
         });
     },
+
     setBadge() {
         browser.windows.getCurrent({
             populate: true
@@ -254,6 +219,7 @@ var ColorfulTabs = {
             });
         });
     },
+    
     async initTheme() {
 
         let headerColor = await getOption("accentcolor");
@@ -262,23 +228,22 @@ var ColorfulTabs = {
 
         ColorfulTabs.clrtheme.images.headerURL = headerImage;
 
-        accentcolor = await ColorfulTabs.rgbclr(await getOption("accentcolor"));
+        let accentcolor = await ColorfulTabs.rgbclr(await getOption("accentcolor"));
         ColorfulTabs.clrtheme.colors.accentcolor = "rgb(" + accentcolor + ")";
 
-        textcolor = await ColorfulTabs.rgbclr(await getOption("textcolor"));
+        let textcolor = await ColorfulTabs.rgbclr(await getOption("textcolor"));
         ColorfulTabs.clrtheme.colors.textcolor = "rgb(" + textcolor + ")";
 
-        toolbar_text = await ColorfulTabs.rgbclr(await getOption("toolbar_text"));
+        let toolbar_text = await ColorfulTabs.rgbclr(await getOption("toolbar_text"));
         ColorfulTabs.clrtheme.colors.toolbar_text = "rgb(" + toolbar_text + ")";
 
-        toolbar_field = await ColorfulTabs.rgbclr(await getOption("toolbar_field"));
+        let toolbar_field = await ColorfulTabs.rgbclr(await getOption("toolbar_field"));
         ColorfulTabs.clrtheme.colors.toolbar_field = "rgb(" + toolbar_field + ")";
 
-        toolbar_field_text = await ColorfulTabs.rgbclr(await getOption("toolbar_field_text"));
+        let toolbar_field_text = await ColorfulTabs.rgbclr(await getOption("toolbar_field_text"));
 
         ColorfulTabs.clrtheme.colors.toolbar_field_text = "rgb(" + toolbar_field_text + ")";
 
-        //updatedTheme.images.headerURL = headerImage;
     },
 
     generateImage(color) {
@@ -318,8 +283,6 @@ var ColorfulTabs = {
     },
 
     async updateTheme(windowId, updatedTheme) {
-        //let headerImage = generateImage("white");
-        //updatedTheme.images.headerURL = headerImage;
         await browser.theme.update(windowId, updatedTheme);
     },
 
@@ -552,7 +515,6 @@ var ColorfulTabs = {
         return clr;
     },
 
-    //does... figure it out by the functionname
     hsl2rgb(h, s, l) {
         var m1, m2, hue;
         var r, g, b
@@ -574,7 +536,6 @@ var ColorfulTabs = {
         return Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b); //255,255,255
     },
 
-    //does... figure it out by the functionname
     HueToRgb(m1, m2, hue) {
         var v;
         if (hue < 0)
@@ -592,7 +553,6 @@ var ColorfulTabs = {
         return 255 * v;
     },
 
-    // Generate a unique hash for a wider color spectrum
     sha256(s) {
 
         var chrsz = 8;

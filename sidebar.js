@@ -1,22 +1,12 @@
 'use strict';
 window.addEventListener('DOMContentLoaded', async function () {
-    //console.log('DOMContentLoaded');
-    //let tabcontainer = render_tabs();
+    
     browser.runtime.sendMessage({
         initialized: "pls send all tabs"
     }, function (response) {});
 
 });
-/*
-browser.contextMenus.onClicked.addListener(function (info, tab) {
-    console.log('context menu init');
-    //aEvent.stopImmediatePropagation();
-    //aEvent.stopPropagation();
-    //aEvent.preventDefault();
-    //return false;
 
-},true);
-*/
 
 document.oncontextmenu = function(){
     return false;
@@ -24,7 +14,6 @@ document.oncontextmenu = function(){
 
 browser.runtime.onMessage.addListener(function (message, sender) {
 
-    //console.log(message);
     if (message.tabs) { // We've received tabs
         render_tabs(message.tabs, sender)
     }
@@ -34,13 +23,22 @@ browser.runtime.onMessage.addListener(function (message, sender) {
 function render_tabs(message, sender) {
     let sat = 61;
     let lum = 73;
-    //console.log("rendering");
-    //return;
     var tabbar = document.getElementById('colorfulTabsContainer');
     while (tabbar.hasChildNodes()) {
         tabbar.removeChild(tabbar.lastChild)
     }
 
+    let newtabbtn = document.createElement('span');
+    newtabbtn.id = 'colorfultabs-newtab';
+    newtabbtn.className = 'tab';
+    newtabbtn.addEventListener('click', function () {
+        browser.runtime.sendMessage({
+            newtab: 'newtab'
+        });
+    });
+    tabbar.appendChild(newtabbtn);
+    console.log(tabbar);
+    
     let tabstrippinned = document.createElement('span');
     tabstrippinned.id = 'tabstrippinned';
     tabstrippinned.className = 'tabstrippinned';
@@ -50,21 +48,17 @@ function render_tabs(message, sender) {
     tabstrip.id = 'tabstrip';
     tabstrip.className = 'tabstrip';
     tabbar.appendChild(tabstrip);
-    
+
     for (var i = 0; i < message.length; ++i) {
         let tab = document.createElement('span');
         tab.className = 'tab';
         tab.id = message[i].id;
-        //console.log(message[i].url)
         let host = new URL(message[i].url);
         host = host.hostname.toString();
 
-        //console.log(host);
         var hue = genColor(host);
         tab.setAttribute("data-ct-color", `hsl(${hue},${sat}%,${lum}%);`);
-        //var gradientstyle = `linear-gradient(hsla(0,0%,100%,.7),hsla(${hue},${sat}%,${lum}%,.5),hsla(${hue},${sat}%,${lum}%,1)),linear-gradient(hsla(${hue},${sat}%,${lum}%,1),hsla(${hue},${sat}%,${lum}%,1))`;
         var gradientstyle = `linear-gradient(to right, hsla(0,0%,100%,.7),hsla(${hue},${sat}%,${lum}%,.5),hsla(${hue},${sat}%,${lum}%,1)),linear-gradient(to left, hsla(${hue},${sat}%,${lum}%,1),hsla(${hue},${sat}%,${lum}%,1))`;
-        //var gradientstyle = `linear-gradient( to left, hsla(0,0%,100%,.7),hsla(${hue},${sat}%,${lum}%,1),hsla(${hue},${sat}%,${lum}%,1)),linear-gradient(white, white)`;
         tab.style = "background-image:" + gradientstyle;
         
         tab.setAttribute('active', message[i].active);
@@ -91,7 +85,6 @@ function render_tabs(message, sender) {
                 element = element.parentElement;
             }
             
-            //console.log(parseInt(element.getAttribute('id')));
             browser.runtime.sendMessage({
                 select: {tabId :parseInt(element.getAttribute('id'))}
             });
@@ -124,81 +117,10 @@ function render_tabs(message, sender) {
         })
     }
 
-    /*let body = document.getElementById('colorfulTabsContainer').contentDocument.body;
-    body.addEventListener('contextmenu', event => event.preventDefault());
-
-    let scrollleftbtn = document.createElement('span');
-    scrollleftbtn.id = 'colorfultabs-go-left';
-    scrollleftbtn.addEventListener('click', function () {
-        tabstrip.scrollBy({
-            "behavior": "smooth",
-            "left": -500,
-            "top": 0
-        });
-    });
-    tabbar.insertBefore(scrollleftbtn, tabbar.firstChild);
-
-    let scrollrightbtn = document.createElement('span');
-    scrollrightbtn.id = 'colorfultabs-go-right';
-    scrollrightbtn.addEventListener('click', function () {
-        tabstrip.scrollBy({
-            "behavior": "smooth",
-            "left": 500,
-            "top": 0
-        });
-    });
-    tabbar.appendChild(scrollrightbtn);
-
-    let newtabbtn = document.createElement('span');
-    newtabbtn.id = 'colorfultabs-newtab';
-    newtabbtn.addEventListener('click', function () {
-        //console.log('someday this will open a new tab');
-        browser.runtime.sendMessage({
-            newtab: 'newtab'
-        });
-    });
-    tabbar.appendChild(newtabbtn);
-
-    let ct_window = colorfulTabsContainer.contentWindow;
-    let ct_doc = colorfulTabsContainer.contentDocument;
-
-    let posleft = parseInt(ct_window.getComputedStyle(ct_doc.getElementById('tabstrippinned'), null).getPropertyValue('width'));
-    posleft = posleft + 32;
-    tabstrip.style.left = posleft + 'px';
-    tabstrip.style.maxWidth = 'calc(100% - ' + posleft + 'px - 64px)';
-
-    let widthunpinned = ct_window.getComputedStyle(ct_doc.getElementById('tabstrip'), null).getPropertyValue('width');
-    widthunpinned = parseInt(widthunpinned);
-    widthunpinned = widthunpinned + posleft;
-    newtabbtn.style.left = (widthunpinned + 1) + 'px';
-
-    tabstrippinned.addEventListener("wheel", function (event, delta) {
-        event.stopPropagation();
-        event.preventDefault();
-
-    }, true);
-
-
-
-
-    let selected = tabstrip.querySelector('[active="true"]');
-    let selectedClr = selected.getAttribute("data-ct-color");
-    selectedClr = selectedClr.replace(";", "");
-    result.style.borderBottom = "5px solid " + selectedClr;
-    try {
-        selected.scrollIntoView({
-            behavior: "instant",
-            inline: "center",
-            block: "center"
-        });
-    } catch (e) {}
-    */
-
 }
 
 
 async function update_tabs() {
-    //console.log('initialized');
     return document.getElementById('colorfulTabsContainer');
 }
 
