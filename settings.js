@@ -1,5 +1,5 @@
 var defaults = {
-    overridetheme: 'no',
+    overridetheme: 'yes',
     saturation: 61,
     lightness: 73,
     accentcolor: "#fff",
@@ -37,6 +37,7 @@ async function saveOptions(e) {
     for (var setting of settings) {
         await setOption(setting, form[setting].value);
     }
+    alert('Browser restart required!');
 }
 
 async function getOption(setting) {
