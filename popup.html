@@ -4,165 +4,165 @@
 <head>
     <meta charset="UTF-8">
     <style type="text/css">
-    ::-webkit-scrollbar {
-        display: none;
-    }
-    
-    body {
-        margin: 0;
-        padding: 10px;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-        font-size: 12px;
-        overflow: hidden;
-        background-image: linear-gradient(hsla(0, 0%, 100%, .2),
-                hsla(0, 0%, 0%, .1) 50%,
-                hsla(0, 0%, 100%, .2) 66%);
-        background-repeat: no-repeat;
-    }
-    
-    #ct-tabs-container {
-        height: 39px;
-    }
-    
-    #ct-tabs {
-        margin: 0 10px 0px 0;
-        padding: 0 10px 0 10px;
-        overflow-x: auto;
-        overflow-y: hidden;
-        list-style: none;
-        display: -webkit-box;
-        -webkit-box-orient: horizontal;
-        height: 39px;
-        padding-bottom: 400px;
-        position: relative;
-        top: 5px;
-    }
-    
-    .ct-tab {
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        box-shadow: inset 0px 1px 0px #888;
-        border-left: 1px solid #fff;
-        border-right: 1px solid #888;
-        border-bottom: 1px solid #888;
-        border-bottom-left-radius: 4px;
-        border-bottom-right-radius: 4px;
-        list-style: none;
-        white-space: pre;
-        width: auto;
-        max-width: 100px;
-        padding: 10px 21px 5px 8px;
-        transition: all .1s;
-        display: block;
-        overflow: hidden;
-        height: 21px;
-        cursor: default;
-        position: relative;
-        bottom: 0px;
-    }
-    
-    .ct-tab:hover {
-        box-shadow: inset 0px 1px 0px transparent, 0px 1px 2px hsla(0, 0%, 0%, .25);
-        height: 23px;
-        z-index: 100;
-    }
-    
-    .ct-tab[data-ct-active="true"] {
-        top: -1px;
-        height: 23px;
-        font-weight: bold;
-        box-shadow: inset 0px 1px 0px transparent, 0px 1px 2px hsla(0, 0%, 0%, .25);
-    }
-    
-    .ct-tab[data-ct-pinned="true"] {
-        max-width: 16px;
-    }
-    
-    .ct-tab[data-ct-pinned="true"]:hover {
-        max-width: initial;
-    }
-    
-    .ct-tab[data-ct-pinned="true"] .ct-tab-label {
-        display: none;
-    }
-    
-    .ct-tab[data-ct-pinned="true"]:hover .ct-tab-label {
-        display: block;
-    }
-    
-    .ct-tab-label {
-        display: block;
-        overflow: hidden;
-        margin-right: 4px;
-        padding-top: 2px;
-    }
-    
-    .ct-tab:hover {
-        width: auto;
-    }
-    
-    .ct-tab-close {
-        position: absolute;
-        top: 12px;
-        right: 6px;
-        display: block;
-        height: 16px;
-        width: 16px;
-        margin-left: 10px;
-        background-image: url(close-normal.svg);
-        background-repeat: no-repeat;
-        background-size: contain;
-        background-position: center;
-    }
-    
-    .ct-tab-close:hover {
-        background-image: url(close-hover.svg) !important;
-    }
-    
-    .ct-tab-close:active {
-        background-image: url(close-active.svg) !important;
-    }
-    
-    #sidebartoggle,
-    #contribute,
-    #feedback,
-    #customize,
-    #settings {
-        color: #000;
-        text-decoration: none;
-        padding: 5px 10px;
-        outline: none;
-        display: inline-block;
-        margin-top: 20px;
-        position: relative;
-        border: 0;
-        border-radius: 2px;
-        background: #ffbf00;
-        box-shadow: 1px 1px 3px rgba(0, 0, 0, .25);
-        transition: all .2s;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    
-    #contribute {
-        background: hsl(140, 50%, 50%);
-        color: #fff;
-    }
-    
-    #feedback,
-    #customize,
-    #settings {
-        background: #eee;
-    }
-    
-    #contribute:hover,
-    #feedback:hover,
-    #settings:hover,
-    #customize:hover {
-        box-shadow: 1px 1px 3px 0 rgba(0, 0, 0, .5);
-    }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            font-size: 12px;
+            overflow: hidden;
+            background-image: linear-gradient(hsla(0, 0%, 100%, .2),
+                    hsla(0, 0%, 0%, .1) 50%,
+                    hsla(0, 0%, 100%, .2) 66%);
+            background-repeat: no-repeat;
+        }
+
+        #ct-tabs-container {
+            height: 39px;
+        }
+
+        #ct-tabs {
+            margin: 0 10px 0px 0;
+            padding: 0 10px 0 10px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            list-style: none;
+            display: -webkit-box;
+            -webkit-box-orient: horizontal;
+            height: 39px;
+            padding-bottom: 400px;
+            position: relative;
+            top: 5px;
+        }
+
+        .ct-tab {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            box-shadow: inset 0px 1px 0px #888;
+            border-left: 1px solid #fff;
+            border-right: 1px solid #888;
+            border-bottom: 1px solid #888;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+            list-style: none;
+            white-space: pre;
+            width: auto;
+            max-width: 100px;
+            padding: 10px 21px 5px 8px;
+            transition: all .1s;
+            display: block;
+            overflow: hidden;
+            height: 21px;
+            cursor: default;
+            position: relative;
+            bottom: 0px;
+        }
+
+        .ct-tab:hover {
+            box-shadow: inset 0px 1px 0px transparent, 0px 1px 2px hsla(0, 0%, 0%, .25);
+            height: 23px;
+            z-index: 100;
+        }
+
+        .ct-tab[data-ct-active="true"] {
+            top: -1px;
+            height: 23px;
+            font-weight: bold;
+            box-shadow: inset 0px 1px 0px transparent, 0px 1px 2px hsla(0, 0%, 0%, .25);
+        }
+
+        .ct-tab[data-ct-pinned="true"] {
+            max-width: 16px;
+        }
+
+        .ct-tab[data-ct-pinned="true"]:hover {
+            max-width: initial;
+        }
+
+        .ct-tab[data-ct-pinned="true"] .ct-tab-label {
+            display: none;
+        }
+
+        .ct-tab[data-ct-pinned="true"]:hover .ct-tab-label {
+            display: block;
+        }
+
+        .ct-tab-label {
+            display: block;
+            overflow: hidden;
+            margin-right: 4px;
+            padding-top: 2px;
+        }
+
+        .ct-tab:hover {
+            width: auto;
+        }
+
+        .ct-tab-close {
+            position: absolute;
+            top: 12px;
+            right: 6px;
+            display: block;
+            height: 16px;
+            width: 16px;
+            margin-left: 10px;
+            background-image: url(close-normal.svg);
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+        }
+
+        .ct-tab-close:hover {
+            background-image: url(close-hover.svg) !important;
+        }
+
+        .ct-tab-close:active {
+            background-image: url(close-active.svg) !important;
+        }
+
+        #sidebartoggle,
+        #contribute,
+        #feedback,
+        #customize,
+        #settings {
+            color: #000;
+            text-decoration: none;
+            padding: 5px 10px;
+            outline: none;
+            display: inline-block;
+            margin-top: 20px;
+            position: relative;
+            border: 0;
+            border-radius: 2px;
+            background: #ffbf00;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, .25);
+            transition: all .2s;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #contribute {
+            background: hsl(140, 50%, 50%);
+            color: #fff;
+        }
+
+        #feedback,
+        #customize,
+        #settings {
+            background: #eee;
+        }
+
+        #contribute:hover,
+        #feedback:hover,
+        #settings:hover,
+        #customize:hover {
+            box-shadow: 1px 1px 3px 0 rgba(0, 0, 0, .5);
+        }
     </style>
-    <script type="text/javascript" src="popup.js"></script>
+
     <title>ColorfulTabs</title>
 </head>
 
@@ -176,6 +176,8 @@
         title="Provide ColorfulTabs Feedback in Forums">Feedback</a>
     <a data-href="https://www.addongenie.com/forums/topic/userchrome-css-tweaks-for-firefox-quantum-and-later"
         id="customize" title="Customize ColorfulTabs with Code">Customize</a>
+    <script type="text/javascript" src="common.js"></script>
+    <script type="text/javascript" src="popup.js"></script>
 </body>
 
 </html>

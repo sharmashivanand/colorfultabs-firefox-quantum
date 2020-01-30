@@ -9,7 +9,7 @@
 
 <body>
 
-  <form>
+  <form id="ColorfulTabsOptions">
     <table>
       <tr>
         <td><label>Override Theme Colors?</label></td>
@@ -17,6 +17,14 @@
             <option value="yes">Yes</option>
             <option value="no">No</option>
           </select></td>
+      </tr>
+      <tr>
+        <td><label>Coloring Scheme</label></td>
+        <td><select type="checkbox" id="scheme">
+          <option value="0">Fixed</option>
+          <option value="1">Random</option>
+          <option value="2">Domain Based</option>
+        </select></td>
       </tr>
       <tr>
         <td><label>Saturation</label></td>
@@ -53,7 +61,7 @@
     </table>
   </form>
   <p><strong>Changes need a browser restart.</strong></p>
-  <script src="settings.js"></script>
+  <script src="common.js"></script>
 
 </body>
 

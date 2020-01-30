@@ -7,12 +7,37 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-    align-content: space-between;
 }
 
 .tabstrippinned .tab {
     flex-grow: 1;
 }
+
+.tabstrippinned .tab .title {
+    display: none;
+}
+.tabstrippinned .tab .closebtn, .tabstrippinned .tab .icon {
+    width: 16px;
+    height: 16px;
+}
+.tabstrippinned .tab .closebtn {
+    display: none;
+}
+.tabstrippinned .tab:hover .closebtn {
+    display: inline-block;
+    margin: 0.25em;
+}
+.tabstrippinned .tab:hover .icon {
+    display: none;
+}
+
+.tabstrippinned .tab[data-ct-active=true] {
+    font-weight: bold;
+    z-index: 9999;
+    box-shadow: 0px 0px 5px #000000aa;
+    border: 1px solid transparent;
+}
+
 
 .tab, .tab * {
     vertical-align: middle;
@@ -30,7 +55,7 @@ body {
     align-items: center;
     flex-direction: row;
     flex-wrap: nowrap;
-    justify-content: flex-start;
+    justify-content: space-evenly;
     position: relative;
     left: 0;
     line-height: 1;
@@ -38,14 +63,8 @@ body {
     padding: .5em;
     overflow: hidden;
     max-width: 100%;
-    /*
-    border-top: 1px solid #ffffff44;
-    border-bottom: 1px solid #00000044;
     border: 1px solid transparent;
-    /*border-image: linear-gradient(#ffffff33, #00000033) 1 / 1px / 0px round;*/
     border-image: linear-gradient(to bottom, #ffffff33, #00000033) 1 / 1px 0px 1px 0px / 0px round;
-    border-left: 0;
-    border-right: 1px solid #000000;
 }
 
 .tab .title {
@@ -57,13 +76,8 @@ body {
     font-weight: bold;
     z-index: 9999;
     box-shadow: -5px 0px 5px black;
-    /*border-top: none;
-    border-bottom: none;
-    border-right: 0;
-    */
     border: 0px solid transparent;
     border-left: .5em solid red;
-    ;
 }
 
 .icon, .closebtn {
@@ -78,15 +92,16 @@ body {
 }
 
 .closebtn {
-    background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16px" height="16px"><path fill-rule="evenodd"  fill="none" d="M8.000,-0.000 C12.418,-0.000 16.000,3.582 16.000,8.000 C16.000,12.418 12.418,16.000 8.000,16.000 C3.582,16.000 -0.000,12.418 -0.000,8.000 C-0.000,3.582 3.582,-0.000 8.000,-0.000 Z"/> <path fill-rule="evenodd"  fill="rgb(77, 77, 77)" d="M11.999,11.272 L11.272,11.999 L8.000,8.727 L4.728,11.999 L4.001,11.272 L7.273,8.000 L4.001,4.728 L4.728,4.001 L8.000,7.273 L11.272,4.001 L11.999,4.728 L8.727,8.000 L11.999,11.272 Z"/></svg>') no-repeat center;
+    background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16px" height="16px"><path fill-rule="evenodd" fill="rgb(77, 77, 77)" d="M11.999,11.272 L11.272,11.999 L8.000,8.727 L4.728,11.999 L4.001,11.272 L7.273,8.000 L4.001,4.728 L4.728,4.001 L8.000,7.273 L11.272,4.001 L11.999,4.728 L8.727,8.000 L11.999,11.272 Z"/></svg>') no-repeat center;
     background-size: contain;
     border-radius: 100%;
     margin: 0 0 0 0;
     padding: 0 0 0 0;
+    transition: all .4s linear;
 }
 
 .closebtn:hover {
-    background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16px" height="16px"><path fill-rule="evenodd"  fill="rgb(226, 92, 75)" d="M8.000,-0.000 C12.418,-0.000 16.000,3.582 16.000,8.000 C16.000,12.418 12.418,16.000 8.000,16.000 C3.582,16.000 -0.000,12.418 -0.000,8.000 C-0.000,3.582 3.582,-0.000 8.000,-0.000 Z"/><path fill-rule="evenodd"  fill="rgb(255, 255, 255)" d="M11.999,11.272 L11.272,11.999 L8.000,8.727 L4.728,11.999 L4.001,11.272 L7.273,8.000 L4.001,4.728 L4.728,4.001 L8.000,7.273 L11.272,4.001 L11.999,4.728 L8.727,8.000 L11.999,11.272 Z"/></svg>') no-repeat center;
+    background: hsl(7, 72%, 59%) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16px" height="16px"><path fill-rule="evenodd" fill="rgb(255, 255, 255)" d="M11.999,11.272 L11.272,11.999 L8.000,8.727 L4.728,11.999 L4.001,11.272 L7.273,8.000 L4.001,4.728 L4.728,4.001 L8.000,7.273 L11.272,4.001 L11.999,4.728 L8.727,8.000 L11.999,11.272 Z"/></svg>') no-repeat center;
 }
 
 #colorfultabs-newtab {
