@@ -21,10 +21,21 @@ var ColorfulTabsPopup = {
 
         browser.runtime.onMessage.addListener(async function (message, sender) {
             if (message.tabs) { // We've received tabs
+
+                var gettingCurrent = await browser.windows.getCurrent(
+                )
+
+                //console.dir('popup window id:' + gettingCurrent.id);
+
+                if( gettingCurrent.id != message.winId) {
+                    return;
+                }
+
                 var cttabs = document.createElement('ul');
                 cttabs.id = "ct-tabs";
                 document.getElementById("ct-tabs-container").innerHTML = '';
                 message.tabs.forEach(async (element, index, array) => {
+                    //console.dir(element['windowId']);
                     var tabClr;
                     var gradientstyle;
 
@@ -180,7 +191,7 @@ var ColorfulTabsPopup = {
         var container = document.getElementById("ct-tabs");
         selectedClr = selectedClr.replace(";", "");
         //setTimeout(function () {
-            container.style.borderTop = "5px solid " + selectedClr;
+        container.style.borderTop = "5px solid " + selectedClr;
         //}, 1000);
         selected.scrollIntoView({
             behavior: "smooth",

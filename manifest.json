@@ -3,7 +3,7 @@
     "name": "ColorfulTabs",
     "short_name": "ColorfulTabs",
     "description": "Let's try to re-color the tabs. Shall we? Currently only colors the selected tab due to https://bugzilla.mozilla.org/show_bug.cgi?id=1320585",
-    "version": "33.8",
+    "version": "34.0",
     "icons": {
         "16": "icon-16.png",
         "48": "icon-48.png",

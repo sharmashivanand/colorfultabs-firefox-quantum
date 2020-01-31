@@ -11,11 +11,20 @@ document.oncontextmenu = function () {
 
 browser.runtime.onMessage.addListener(async function (message, sender) {
     if (message.tabs) { // We've received tabs
+        var gettingCurrent = await browser.windows.getCurrent(
+        )
+
+        //console.dir('popup window id:' + gettingCurrent.id);
+
+        if (gettingCurrent.id != message.winId) {
+            return;
+        }
         await render_tabs(message.tabs, sender)
     }
 });
 
 async function render_tabs(message, sender) {
+
     var tabbar = document.getElementById('colorfulTabsContainer');
     while (tabbar.hasChildNodes()) {
         tabbar.removeChild(tabbar.lastChild)
@@ -83,11 +92,6 @@ async function render_tabs(message, sender) {
                 active: true
             }, async function (data_tabid) {
             });
-            //browser.runtime.sendMessage(browser.runtime.id, {
-            //    select: {
-            //        tabId: parseInt(element.getAttribute('id'))
-            //    }
-            //});
         });
         let tabicon = document.createElement('span');
         tabicon.className = 'icon';
