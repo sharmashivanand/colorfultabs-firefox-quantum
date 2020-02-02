@@ -1,4 +1,4 @@
-To use this:
+# To use this:
 
 1. Download the source (If downloading the zip, extract it to a folder).
 1. Go To "Add-ons" > "Extensions".
