@@ -35,8 +35,17 @@ var CtUtils = {
         ctCanvas.width = '1';
         ctCanvas.height = '1';
         var ctx = ctCanvas.getContext("2d");
+
+        //linear-gradient(to right, hsla(0,0%,100%,.7),hsla(${tabClr.h},${tabClr.s}%,${tabClr.l}%,.5),hsla(${tabClr.h},${tabClr.s}%,${tabClr.l}%,1)),linear-gradient(to left, hsla(${tabClr.h},${tabClr.s}%,${tabClr.l}%,1),hsla(${tabClr.h},${tabClr.s}%,${tabClr.l}%,1));
+        //console.dir(color);
+        color = await CtUtils.anytorgb(color);
+        console.dir(color);
         ctx.fillStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+        //ctx.fillStyle = 'rgb(255,0,0)';
+        console.log('tx.fillStyle');
+        console.log(ctx.fillStyle);
         ctx.fillRect(0, 0, 1, 1);
+        //ctx.fillRect(0, 0, 1000, 1000);
         var myImage = ctCanvas.toDataURL("image/png");
         return myImage;
     },

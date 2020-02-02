@@ -1,7 +1,7 @@
 'use strict';
 var ColorfulTabs = {
     async init() {
-        //ColorfulTabs.initTheme();
+        ColorfulTabs.initTheme();
 
         browser.runtime.onInstalled.addListener(function (details) {
             if (details.reason == "install") {
@@ -28,54 +28,46 @@ var ColorfulTabs = {
             }
         });
 
-        // Update theme
-        //browser.tabs.onActivated.addListener(async (activeInfo) => {
-        //    await browser.tabs.get(activeInfo.tabId, async (tab) => {
-        //
-        //        let host = new URL(tab.url);
-        //        if (host.hostname) {
-        //            host = host.hostname.toString();
-        //        }
-        //        else {
-        //            host = host.href;
-        //        }
-        //        let tabClr;
-        //        try {
-        //            tabClr = await CtUtils.gethsl(host, tab.id); //ColorfulTabs.genTabClr(host); // 'hsl(' + Math.abs(ColorfulTabs.clrHash(host)) % 360 + ',' + sat + '%,' + lum + '%)';
-        //            tabClr = 'hsl(' + tabClr.h + ',' + tabClr.s + '%,' + tabClr.l + '%)';
-        //        }
-        //        catch (e) {
-        //            console.log('tabClr err in bg.s' + e);
-        //        }
-        //        let headerImage = await CtUtils.generateImage(tabClr);
-        //        await ColorfulTabs.updateTheme(tab.windowId, headerImage, tabClr);
-        //    });
-        //});
+        //Update theme
+        browser.tabs.onActivated.addListener(async (activeInfo) => {
 
-        //browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-        //    if (changeInfo.status != "complete") {
-        //        return;
-        //    }
-        //    await browser.tabs.get(tabId, async (tab) => {
-        //        let host = new URL(tab.url);
-        //        if (host.hostname) {
-        //            host = host.hostname.toString();
-        //        }
-        //        else {
-        //            host = host.href;
-        //        }
-        //        let tabClr;
-        //        try {
-        //            tabClr = await CtUtils.gethsl(host, tab.id); //ColorfulTabs.genTabClr(host); // 'hsl(' + Math.abs(ColorfulTabs.clrHash(host)) % 360 + ',' + sat + '%,' + lum + '%)';
-        //            tabClr = 'hsl(' + tabClr.h + ',' + tabClr.s + '%,' + tabClr.l + '%)';
-        //        }
-        //        catch (e) {
-        //            console.log('tabClr err in bg.s' + e);
-        //        }
-        //        let headerImage = await CtUtils.generateImage(tabClr);
-        //        await ColorfulTabs.updateTheme(tab.windowId, headerImage, tabClr);
-        //    });
-        //});
+            var tabInfo = await browser.tabs.get(activeInfo.tabId);
+
+            await ColorfulTabs.ThemeTab(tabInfo);
+            /*
+            await browser.tabs.get(activeInfo.tabId, async (tab) => {
+
+                let host = new URL(tab.url);
+                if (host.hostname) {
+                    host = host.hostname.toString();
+                }
+                else {
+                    host = host.href;
+                }
+                let tabClr;
+                try {
+                    tabClr = await CtUtils.gethsl(host, tab.id); //ColorfulTabs.genTabClr(host); // 'hsl(' + Math.abs(ColorfulTabs.clrHash(host)) % 360 + ',' + sat + '%,' + lum + '%)';
+                    tabClr = 'hsl(' + tabClr.h + ',' + tabClr.s + '%,' + tabClr.l + '%)';
+                }
+                catch (e) {
+                    console.log('tabClr err in bg.s' + e);
+                }
+                //let headerImage = await CtUtils.generateImage(tabClr);
+                ColorfulTabs.clrtheme.colors.toolbar = tabClr;
+                await ColorfulTabs.updateTheme(tab.windowId, ColorfulTabs.clrtheme);
+                //await ColorfulTabs.updateTheme(tab.windowId, headerImage, tabClr);
+            });
+            */
+        });
+
+        browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+            if (changeInfo.status != "complete") {
+                //return;
+            }
+            var tabInfo = await browser.tabs.get(tabId);
+
+            await ColorfulTabs.ThemeTab(tabInfo);
+        });
 
         // Initial tabs + handler for sidebar action clicks
         browser.runtime.onMessage.addListener(
@@ -110,6 +102,30 @@ var ColorfulTabs = {
         browser.tabs.onRemoved.addListener(ColorfulTabs.setBadge);
 
         browser.tabs.onUpdated.addListener(ColorfulTabs.onUpdated);
+    },
+
+    async ThemeTab(tab) {
+        let host = new URL(tab.url);
+        if (host.hostname) {
+            host = host.hostname.toString();
+        }
+        else {
+            host = host.href;
+        }
+        let tabClr;
+        try {
+            tabClr = await CtUtils.gethsl(host, tab.id); //ColorfulTabs.genTabClr(host); // 'hsl(' + Math.abs(ColorfulTabs.clrHash(host)) % 360 + ',' + sat + '%,' + lum + '%)';
+            tabClr = 'hsl(' + tabClr.h + ',' + tabClr.s + '%,' + tabClr.l + '%)';
+        }
+        catch (e) {
+            console.log('tabClr err in bg.s' + e);
+        }
+        ColorfulTabs.clrtheme.colors.toolbar = tabClr;
+        //ColorfulTabs.clrtheme.images.theme_frame = await CtUtils.generateImage(tabClr);
+        await ColorfulTabs.updateTheme(tab.windowId, ColorfulTabs.clrtheme);
+
+        //let headerImage = await CtUtils.generateImage(tabClr);
+        //await ColorfulTabs.updateTheme(tab.windowId, headerImage, tabClr);
     },
     sendTabs(info) {
         try {
@@ -193,6 +209,39 @@ var ColorfulTabs = {
         });
     },
     async initTheme() {
+        
+        var overridetheme = await getOption("overridetheme");
+        console.log(overridetheme);
+        
+        let headerColor = await getOption("accentcolor");
+        headerColor = await CtUtils.anytorgb(headerColor);
+
+        let headerImage = await CtUtils.generateImage(headerColor);
+        ColorfulTabs.clrtheme.images.theme_frame = headerImage;
+
+        //let accentcolor = await CtUtils.anytorgb(await getOption("accentcolor"));
+        //accentcolor = await CtUtils.rgbtohsl(accentcolor.r, accentcolor.g, accentcolor.b);
+        //ColorfulTabs.clrtheme.colors.frame = "rgb(" + accentcolor + ")";
+        //
+        //let textcolor = await CtUtils.anytorgb(await getOption("textcolor"));
+        //textcolor = await CtUtils.rgbtohsl(textcolor.r, textcolor.g, textcolor.b);
+        //ColorfulTabs.clrtheme.colors.tab_background_text = "rgb(" + textcolor + ")";
+        //
+        //let toolbar_text = await CtUtils.anytorgb(await getOption("toolbar_text"));
+        //toolbar_text = await CtUtils.rgbtohsl(toolbar_text.r, toolbar_text.g, toolbar_text.b);
+        //ColorfulTabs.clrtheme.colors.bookmark_text = "rgb(" + toolbar_text + ")";
+        //
+        //let toolbar_field = await CtUtils.anytorgb(await getOption("toolbar_field"));
+        //toolbar_field = await CtUtils.rgbtohsl(toolbar_field.r, toolbar_field.g, toolbar_field.b);
+        //ColorfulTabs.clrtheme.colors.toolbar_field = "rgb(" + toolbar_field + ")";
+        //
+        //let toolbar_field_text = await CtUtils.anytorgb(await getOption("toolbar_field_text"));
+        //toolbar_field_text = await CtUtils.rgbtohsl(toolbar_field_text.r, toolbar_field_text.g, toolbar_field_text.b);
+        //ColorfulTabs.clrtheme.colors.toolbar_field_text = "rgb(" + toolbar_field_text + ")";
+        //await ColorfulTabs.updateTheme(windowId, ColorfulTabs.clrtheme);
+
+    },
+    async initThemeNew() {
         return;
         let windowId = browser.windows.getCurrent();
         windowId.then(async function (windowId) {
@@ -215,20 +264,17 @@ var ColorfulTabs = {
         //return;
 
     },
-    clrtheme: {
-        "images": {
-            "theme_frame": ""
-        },
-        "colors": {
-            "frame": "#fff",
-            "tab_background_text": "#000",
-            "toolbar": "rgba(255,0,0, 1)",
-            "bookmark_text": "#000",
-            "toolbar_field": "#fff",
-            "toolbar_field_text": "#000",
+    async updateTheme(windowId, updatedTheme) {
+        var overridetheme = await getOption("overridetheme");
+        console.log('CT: Attempting Theme Update');
+        console.dir(updatedTheme);
+        if (overridetheme == 'yes') {
+            await browser.theme.update(windowId, updatedTheme);
+        } else {
+            //await browser.theme.reset();
         }
     },
-    async updateTheme(windowId, image, color) {
+    async updateThemeNew(windowId, image, color) {
         var themeInfo = await browser.theme.getCurrent();
         console.dir(themeInfo);
         if (!themeInfo.hasOwnProperty('images')) {
@@ -271,8 +317,32 @@ var ColorfulTabs = {
             console.dir(e);
         }
     },
+    clrtheme: {
+        "images": {
+            "theme_frame": ""
+        },
+        "colors": {
+            //"frame": "#fff",
+            //"tab_background_text": "#000",
+            "toolbar": "",
+            //"bookmark_text": "#000",
+            //"toolbar_field": "#fff",
+            //"toolbar_field_text": "#000",
+        }
+    },
+    clrthemeNew: {
+        "images": {
+            "theme_frame": ""
+        },
+        "colors": {
+            "frame": "#fff",
+            "tab_background_text": "#000",
+            "toolbar": "rgba(255,0,0, 1)",
+            "bookmark_text": "#000",
+            "toolbar_field": "#fff",
+            "toolbar_field_text": "#000",
+        }
+    },
 }
-
-
 
 ColorfulTabs.init();

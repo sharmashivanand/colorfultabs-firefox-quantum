@@ -87,7 +87,7 @@ async function render_tabs(message, sender) {
             while (element.className != 'tab') {
                 element = element.parentElement;
             }
-            console.dir(element);
+            
             chrome.tabs.update(parseInt(element.id), {
                 active: true
             }, async function (data_tabid) {
