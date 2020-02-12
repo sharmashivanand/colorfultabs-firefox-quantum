@@ -9,6 +9,7 @@
         }
 
         body {
+            user-select: none;
             margin: 0;
             padding: 10px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -103,7 +104,7 @@
 
         .ct-tab-close {
             position: absolute;
-            top: 12px;
+            top: 11px;
             right: 6px;
             display: block;
             height: 16px;
@@ -127,7 +128,8 @@
         #contribute,
         #feedback,
         #customize,
-        #settings {
+        #settings,
+        #ct-pop-new-tab {
             color: #000;
             text-decoration: none;
             padding: 5px 10px;
@@ -142,6 +144,7 @@
             transition: all .2s;
             font-weight: bold;
             cursor: pointer;
+            
         }
 
         #contribute {
@@ -151,7 +154,8 @@
 
         #feedback,
         #customize,
-        #settings {
+        #settings,
+        #ct-pop-new-tab {
             background: #eee;
         }
 
@@ -160,6 +164,13 @@
         #settings:hover,
         #customize:hover {
             box-shadow: 1px 1px 3px 0 rgba(0, 0, 0, .5);
+        }
+
+        #ct-pop-new-tab {
+            background-image: url(new-tab.svg);
+            background-repeat: no-repeat;
+            background-position: center;
+            text-indent: -9999px;
         }
     </style>
 
@@ -176,6 +187,7 @@
         title="Provide ColorfulTabs Feedback in Forums">Feedback</a>
     <a data-href="https://www.addongenie.com/forums/topic/userchrome-css-tweaks-for-firefox-quantum-and-later"
         id="customize" title="Customize ColorfulTabs with Code">Customize</a>
+    <a id="ct-pop-new-tab" title="Open New Tab">Open New Tab</a>
     <script type="text/javascript" src="common.js"></script>
     <script type="text/javascript" src="popup.js"></script>
 </body>

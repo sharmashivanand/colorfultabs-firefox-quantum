@@ -1,7 +1,7 @@
 'use strict';
 var ColorfulTabs = {
     async init() {
-        ColorfulTabs.initTheme();
+        //ColorfulTabs.initTheme();
 
         browser.runtime.onInstalled.addListener(function (details) {
             if (details.reason == "install") {
@@ -30,11 +30,7 @@ var ColorfulTabs = {
 
         //Update theme
         browser.tabs.onActivated.addListener(async (activeInfo) => {
-
-            var tabInfo = await browser.tabs.get(activeInfo.tabId);
-
-            await ColorfulTabs.ThemeTab(tabInfo);
-            /*
+            console.log('onActivated');
             await browser.tabs.get(activeInfo.tabId, async (tab) => {
 
                 let host = new URL(tab.url);
@@ -47,26 +43,40 @@ var ColorfulTabs = {
                 let tabClr;
                 try {
                     tabClr = await CtUtils.gethsl(host, tab.id); //ColorfulTabs.genTabClr(host); // 'hsl(' + Math.abs(ColorfulTabs.clrHash(host)) % 360 + ',' + sat + '%,' + lum + '%)';
+                    //await ColorfulTabs.updateTheme(tab.windowId, tabClr);
                     tabClr = 'hsl(' + tabClr.h + ',' + tabClr.s + '%,' + tabClr.l + '%)';
                 }
                 catch (e) {
                     console.log('tabClr err in bg.s' + e);
                 }
-                //let headerImage = await CtUtils.generateImage(tabClr);
-                ColorfulTabs.clrtheme.colors.toolbar = tabClr;
-                await ColorfulTabs.updateTheme(tab.windowId, ColorfulTabs.clrtheme);
-                //await ColorfulTabs.updateTheme(tab.windowId, headerImage, tabClr);
+                
             });
-            */
         });
 
         browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+            console.log('onUpdated');
             if (changeInfo.status != "complete") {
                 //return;
             }
-            var tabInfo = await browser.tabs.get(tabId);
-
-            await ColorfulTabs.ThemeTab(tabInfo);
+            await browser.tabs.get(tabId, async (tab) => {
+                let host = new URL(tab.url);
+                if (host.hostname) {
+                    host = host.hostname.toString();
+                }
+                else {
+                    host = host.href;
+                }
+                let tabClr;
+                try {
+                    tabClr = await CtUtils.gethsl(host, tab.id); //ColorfulTabs.genTabClr(host); // 'hsl(' + Math.abs(ColorfulTabs.clrHash(host)) % 360 + ',' + sat + '%,' + lum + '%)';
+                    await ColorfulTabs.updateTheme(tab.windowId, tabClr);
+                    tabClr = 'hsl(' + tabClr.h + ',' + tabClr.s + '%,' + tabClr.l + '%)';
+                }
+                catch (e) {
+                    console.log('tabClr err in bg.s' + e);
+                }
+                
+            });
         });
 
         // Initial tabs + handler for sidebar action clicks
@@ -104,29 +114,6 @@ var ColorfulTabs = {
         browser.tabs.onUpdated.addListener(ColorfulTabs.onUpdated);
     },
 
-    async ThemeTab(tab) {
-        let host = new URL(tab.url);
-        if (host.hostname) {
-            host = host.hostname.toString();
-        }
-        else {
-            host = host.href;
-        }
-        let tabClr;
-        try {
-            tabClr = await CtUtils.gethsl(host, tab.id); //ColorfulTabs.genTabClr(host); // 'hsl(' + Math.abs(ColorfulTabs.clrHash(host)) % 360 + ',' + sat + '%,' + lum + '%)';
-            tabClr = 'hsl(' + tabClr.h + ',' + tabClr.s + '%,' + tabClr.l + '%)';
-        }
-        catch (e) {
-            console.log('tabClr err in bg.s' + e);
-        }
-        ColorfulTabs.clrtheme.colors.toolbar = tabClr;
-        //ColorfulTabs.clrtheme.images.theme_frame = await CtUtils.generateImage(tabClr);
-        await ColorfulTabs.updateTheme(tab.windowId, ColorfulTabs.clrtheme);
-
-        //let headerImage = await CtUtils.generateImage(tabClr);
-        //await ColorfulTabs.updateTheme(tab.windowId, headerImage, tabClr);
-    },
     sendTabs(info) {
         try {
             browser.tabs.query({
@@ -138,6 +125,7 @@ var ColorfulTabs = {
             console.log('sendTabs: ' + e);
         }
     },
+
     onUpdated(tabId, changeInfo, tabInfo) {
         try {
             //console.dir(tabInfo);
@@ -150,6 +138,7 @@ var ColorfulTabs = {
             console.log('CT: ' + e);
         }
     },
+
     async onRemoved(tabId, removeInfo) {
         try {
             browser.tabs.remove(tabId, async function () {
@@ -165,6 +154,7 @@ var ColorfulTabs = {
         }
 
     },
+
     async sendFilteredTabs(j) {
         var gettingCurrent = await browser.windows.getCurrent(
         );
@@ -176,6 +166,7 @@ var ColorfulTabs = {
             winId: gettingCurrent.id
         });
     },
+
     async sendTabsJson(tabs) {
         var j = JSON.parse(JSON.stringify(tabs));
         j.forEach(async (el, index, array) => {
@@ -199,6 +190,7 @@ var ColorfulTabs = {
             }
         });
     },
+
     async setBadge() {
         browser.windows.getCurrent({
             populate: true
@@ -208,115 +200,60 @@ var ColorfulTabs = {
             });
         });
     },
+
     async initTheme() {
-        
         var overridetheme = await getOption("overridetheme");
         console.log(overridetheme);
-        
+        if (overridetheme == 'yes') { } else {
+            return;
+        }
         let headerColor = await getOption("accentcolor");
         headerColor = await CtUtils.anytorgb(headerColor);
 
         let headerImage = await CtUtils.generateImage(headerColor);
         ColorfulTabs.clrtheme.images.theme_frame = headerImage;
 
-        //let accentcolor = await CtUtils.anytorgb(await getOption("accentcolor"));
-        //accentcolor = await CtUtils.rgbtohsl(accentcolor.r, accentcolor.g, accentcolor.b);
-        //ColorfulTabs.clrtheme.colors.frame = "rgb(" + accentcolor + ")";
-        //
-        //let textcolor = await CtUtils.anytorgb(await getOption("textcolor"));
-        //textcolor = await CtUtils.rgbtohsl(textcolor.r, textcolor.g, textcolor.b);
-        //ColorfulTabs.clrtheme.colors.tab_background_text = "rgb(" + textcolor + ")";
-        //
-        //let toolbar_text = await CtUtils.anytorgb(await getOption("toolbar_text"));
-        //toolbar_text = await CtUtils.rgbtohsl(toolbar_text.r, toolbar_text.g, toolbar_text.b);
-        //ColorfulTabs.clrtheme.colors.bookmark_text = "rgb(" + toolbar_text + ")";
-        //
-        //let toolbar_field = await CtUtils.anytorgb(await getOption("toolbar_field"));
-        //toolbar_field = await CtUtils.rgbtohsl(toolbar_field.r, toolbar_field.g, toolbar_field.b);
-        //ColorfulTabs.clrtheme.colors.toolbar_field = "rgb(" + toolbar_field + ")";
-        //
-        //let toolbar_field_text = await CtUtils.anytorgb(await getOption("toolbar_field_text"));
-        //toolbar_field_text = await CtUtils.rgbtohsl(toolbar_field_text.r, toolbar_field_text.g, toolbar_field_text.b);
-        //ColorfulTabs.clrtheme.colors.toolbar_field_text = "rgb(" + toolbar_field_text + ")";
+        let accentcolor = await CtUtils.anytorgb(await getOption("accentcolor"));
+        accentcolor = await CtUtils.rgbtohsl(accentcolor.r, accentcolor.g, accentcolor.b);
+        ColorfulTabs.clrtheme.colors.frame = "rgb(" + accentcolor + ")";
+
+        let textcolor = await CtUtils.anytorgb(await getOption("textcolor"));
+        textcolor = await CtUtils.rgbtohsl(textcolor.r, textcolor.g, textcolor.b);
+        ColorfulTabs.clrtheme.colors.tab_background_text = "rgb(" + textcolor + ")";
+
+        let toolbar_text = await CtUtils.anytorgb(await getOption("toolbar_text"));
+        toolbar_text = await CtUtils.rgbtohsl(toolbar_text.r, toolbar_text.g, toolbar_text.b);
+        ColorfulTabs.clrtheme.colors.bookmark_text = "rgb(" + toolbar_text + ")";
+
+        let toolbar_field = await CtUtils.anytorgb(await getOption("toolbar_field"));
+        toolbar_field = await CtUtils.rgbtohsl(toolbar_field.r, toolbar_field.g, toolbar_field.b);
+        ColorfulTabs.clrtheme.colors.toolbar_field = "rgb(" + toolbar_field + ")";
+
+        let toolbar_field_text = await CtUtils.anytorgb(await getOption("toolbar_field_text"));
+        toolbar_field_text = await CtUtils.rgbtohsl(toolbar_field_text.r, toolbar_field_text.g, toolbar_field_text.b);
+        ColorfulTabs.clrtheme.colors.toolbar_field_text = "rgb(" + toolbar_field_text + ")";
         //await ColorfulTabs.updateTheme(windowId, ColorfulTabs.clrtheme);
 
     },
-    async initThemeNew() {
-        return;
-        let windowId = browser.windows.getCurrent();
-        windowId.then(async function (windowId) {
-            windowId = windowId.id;
-            var themeInfo = await browser.theme.getCurrent();
-            console.dir(themeInfo);
-            //tabClr = await CtUtils.gethsl(host, tab.id);
-            //tabClr = 'hsl(' + tabClr.h + ',' + tabClr.s + '%,' + tabClr.l + '%)';
 
-            let headerColor = await getOption("accentcolor");
-            headerColor = await CtUtils.anytorgb(headerColor);
-            let headerImage = await CtUtils.generateImage(headerColor);
-
-            //await browser.theme.update(windowId, headerImage);
-            await ColorfulTabs.updateTheme(windowId, headerImage, headerColor);
-
-        });
-
-
-        //return;
-
-    },
-    async updateTheme(windowId, updatedTheme) {
+    async updateTheme(windowId, tabClr) {
+        
+        //ColorfulTabs.clrtheme.colors.toolbar = tabClr;
+        //await ColorfulTabs.updateTheme(tab.windowId, ColorfulTabs.clrtheme);
         var overridetheme = await getOption("overridetheme");
-        console.log('CT: Attempting Theme Update');
-        console.dir(updatedTheme);
         if (overridetheme == 'yes') {
-            await browser.theme.update(windowId, updatedTheme);
+            ColorfulTabs.clrtheme.colors.toolbar = 'hsl(' + tabClr.h + ',' + tabClr.s + '%,' + tabClr.l + '%)';;
+            let headerImage = await CtUtils.generateImage(tabClr);
+            //let headerImage = await CtUtils.generateImage({h:0,s:100,l:50});
+            ColorfulTabs.clrtheme.images.theme_frame = headerImage;
+            //ColorfulTabs.clrtheme.colors.frame = 'hsla(' + tabClr.h + ',' + tabClr.s + '%,90%,.5)';
+            console.dir(ColorfulTabs.clrtheme);
+            await browser.theme.update(windowId, ColorfulTabs.clrtheme);
         } else {
             //await browser.theme.reset();
         }
     },
-    async updateThemeNew(windowId, image, color) {
-        var themeInfo = await browser.theme.getCurrent();
-        console.dir(themeInfo);
-        if (!themeInfo.hasOwnProperty('images')) {
-            //console.log('no images');
-            //return;
-        }
-        if (!themeInfo.hasOwnProperty('colors')) {
-            console.log('no colors');
-            //return;
-        }
-        //console.dir(color); //frame, toolbar, theme_frame
-        //console.dir(image); //frame, toolbar, theme_frame
-        //themeInfo.images.theme_frame = '';
-        //themeInfo.colors['toolbar'] = color;
-        if (!themeInfo.colors) {
-            themeInfo.colors = {};
 
-        }
-        themeInfo.colors.toolbar = color;
-        //themeInfo = Object.assign({}, themeInfo, {colors:{toolbar:color}});
-        //themeInfo.colors.toolbar = 'red';
-        var overridetheme = await getOption("overridetheme");
-
-        try {
-            if (overridetheme == 'yes') {
-                try {
-                    themeInfo.images.theme_frame = '';
-                }
-                catch (e) {
-                    console.log('e');
-                }
-                console.dir('themeInfo update')
-                setTimeout(async function () { await browser.theme.update(windowId, themeInfo); }, 1000);
-
-            } else {
-                //await browser.theme.reset();
-            }
-        }
-        catch (e) {
-            console.dir(e);
-        }
-    },
     clrtheme: {
         "images": {
             "theme_frame": ""
@@ -328,19 +265,6 @@ var ColorfulTabs = {
             //"bookmark_text": "#000",
             //"toolbar_field": "#fff",
             //"toolbar_field_text": "#000",
-        }
-    },
-    clrthemeNew: {
-        "images": {
-            "theme_frame": ""
-        },
-        "colors": {
-            "frame": "#fff",
-            "tab_background_text": "#000",
-            "toolbar": "rgba(255,0,0, 1)",
-            "bookmark_text": "#000",
-            "toolbar_field": "#fff",
-            "toolbar_field_text": "#000",
         }
     },
 }

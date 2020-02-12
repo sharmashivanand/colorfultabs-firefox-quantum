@@ -32,20 +32,24 @@ var CtUtils = {
     generateImage: async function (color) {
         var ctCanvas = document.createElement('canvas');
         ctCanvas.id = 'ctCanvas';
-        ctCanvas.width = '1';
-        ctCanvas.height = '1';
-        var ctx = ctCanvas.getContext("2d");
+        ctCanvas.width = 9999;
+        ctCanvas.height = 55;
 
-        //linear-gradient(to right, hsla(0,0%,100%,.7),hsla(${tabClr.h},${tabClr.s}%,${tabClr.l}%,.5),hsla(${tabClr.h},${tabClr.s}%,${tabClr.l}%,1)),linear-gradient(to left, hsla(${tabClr.h},${tabClr.s}%,${tabClr.l}%,1),hsla(${tabClr.h},${tabClr.s}%,${tabClr.l}%,1));
-        //console.dir(color);
-        color = await CtUtils.anytorgb(color);
-        console.dir(color);
-        ctx.fillStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
-        //ctx.fillStyle = 'rgb(255,0,0)';
-        console.log('tx.fillStyle');
-        console.log(ctx.fillStyle);
-        ctx.fillRect(0, 0, 1, 1);
-        //ctx.fillRect(0, 0, 1000, 1000);
+
+        var ctx = ctCanvas.getContext("2d");
+        console.log('generateImage');
+        
+        var lingrad = ctx.createLinearGradient(0, 0, 0, ctCanvas.height);
+        //lingrad.addColorStop(0, 'red');
+        //lingrad.addColorStop(1, 'black');
+        lingrad.addColorStop(0, 'hsla(' + color.h + ',' + color.s + '%,' + color.l + '%,1)');
+        lingrad.addColorStop(1, 'hsla(' + color.h + ',' + color.s + '%,' + color.l + '%,0)');
+        //console.dir(lingrad);
+
+        ctx.fillStyle = lingrad;
+        //ctx.fillStyle = 'hsl(' + color.h + ',' + color.s + '%,' + color.l + '%)';
+        //ctx.fillStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+        ctx.fillRect(0, 0, ctCanvas.width , ctCanvas.height );
         var myImage = ctCanvas.toDataURL("image/png");
         return myImage;
     },

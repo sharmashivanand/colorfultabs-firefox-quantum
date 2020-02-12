@@ -84,6 +84,7 @@ var ColorfulTabsPopup = {
                     ct_tab.title = element.title;
                     ct_tab.data_tabid = element.id;
                     ct_tab_label.textContent = element.title;
+                    ct_tab.appendChild(ct_tab_close);
                     ct_tab.appendChild(ct_tab_label);
                     try {
                         if (element.favIconUrl) {
@@ -93,7 +94,7 @@ var ColorfulTabsPopup = {
                     catch (e) {
                         console.log(e);
                     }
-                    ct_tab.appendChild(ct_tab_close);
+                    
                     cttabs.appendChild(ct_tab);
 
                     if (array.length === (index + 1)) {
@@ -154,6 +155,17 @@ var ColorfulTabsPopup = {
                         });
                     });
 
+                } catch (err) {
+                    console.log(err);
+                }
+            });
+
+            var newtabcreator = document.getElementById("ct-pop-new-tab");
+            newtabcreator.addEventListener("click", async function () {
+                try {
+                    browser.runtime.sendMessage(browser.runtime.id, {
+                        newtab: 'newtab'
+                    });
                 } catch (err) {
                     console.log(err);
                 }
